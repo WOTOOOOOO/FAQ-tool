@@ -1,0 +1,9 @@
+FAISS_REGULATIONS_INDEX_NAME = "faiss_regulations_storage"
+FAISS_CALENDAR_INDEX_NAME = "faiss_calendar_storage"
+CALENDAR_EVENTS = "calendar_events.json"
+NUMBER_OF_EVENTS = 15
+STUDENTS_CSV = "students.csv"
+NUMBER_OF_STUDENTS = 300
+COURSE_PRICE = 250
+REGULATIONS_PDF = "University_regulations.pdf"
+NUMBER_OF_REGULATIONS_CHUNKS = 25

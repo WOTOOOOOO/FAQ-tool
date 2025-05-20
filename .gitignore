@@ -1,0 +1,36 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+venv/
+.env/
+*.env
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+
+# Cache and temporary files
+*.tmp
+*.swp
+
+# Test coverage reports
+htmlcov/
+.coverage
+*.coverage
+
+# MyPy type-checking reports
+.mypy_cache/
+
+# MacOS-specific files
+.DS_Store
+
+
+.idea/
