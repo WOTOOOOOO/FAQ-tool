@@ -18,7 +18,7 @@ A simple LLM tool that analyzes provided university regulations, student, and ca
    git clone git@github.com:WOTOOOOOO/FAQ-tool.git
    cd <code directory>
 
-2. Clone the repository to your local machine:
+2. Install requirements:
    ```
    pip install -r requirements.txt
 
