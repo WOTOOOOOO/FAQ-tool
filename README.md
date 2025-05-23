@@ -15,8 +15,8 @@ A simple LLM tool that analyzes provided university regulations, student, and ca
 
 1. Clone the repository to your local machine:
    ```
-   git clone <your-repository-url>
-   cd <repository-folder>
+   git clone git@github.com:WOTOOOOOO/FAQ-tool.git
+   cd <code directory>
 
 2. Clone the repository to your local machine:
    ```
