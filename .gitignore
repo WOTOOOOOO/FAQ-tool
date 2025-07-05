@@ -9,6 +9,9 @@ venv/
 *.env
 .venv/
 
+University_regulations.pdf
+students.csv
+
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
 
