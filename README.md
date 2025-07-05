@@ -9,7 +9,6 @@ A simple LLM tool that analyzes provided university regulations, student, and ca
 - **Analyze Regulations**: The app takes in your regulations file, splits it up logically, and uses it to answer your questions.
 - **Analyze Student Information**: The app takes your student info as a CSV file and helps you extract various kinds of information from it. You won't be allowed to modify the file, as that would be insecure.
 - **Analyze Calendar**: The app takes in your calendar information as a JSON file and answers questions regarding events.
-- **Date-Time Tool**: Can provide you with the current date and time—just for fun.
 
 ## Installation
 
@@ -43,7 +42,7 @@ A simple LLM tool that analyzes provided university regulations, student, and ca
 2. Decide which tool to use (if any).
 3. Call the tool.
 4. Process tool response.
-5. Determine if additional tool calls are necessary.
+5. Possible HITL response
 6. Return the final response.
 
 ## Additional Notes
