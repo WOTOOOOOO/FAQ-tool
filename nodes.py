@@ -3,7 +3,7 @@ from typing import Dict, Any, Optional
 from langgraph.graph import StateGraph, END
 from langchain_core.documents import Document
 from langchain_core.runnables import RunnableLambda
-from langchain_core.agents import AgentFinish
+from langchain_core.agents import AgentFinish, AgentAction
 
 
 class GraphState(BaseModel):
@@ -14,6 +14,7 @@ class GraphState(BaseModel):
     output: Optional[str] = None
     context: Optional[str] = None
     hitl_ui_needed: Optional[str] = None
+    code_review_needed: Optional[str] = None
     selected_tool: Optional[str] = None
 
 
@@ -118,6 +119,43 @@ class UniversityGraph:
             return state.model_copy(update={"hitl_ui_needed": True})
         return state.model_copy()
 
+    def pandas_code_review(self, state: GraphState) -> GraphState:
+        query = state.query
+
+        # Run the agent and capture intermediate steps
+        result = self.university_agent.pandas_agent.invoke({"input": query})
+        actions = result.get("intermediate_steps", [])
+        code = actions[-1][0].tool_input
+
+        answer = result.get("output", "")
+
+        return state.model_copy(
+            update={
+                "context": answer,
+                "output": code,
+                "code_review_needed": True
+            }
+        )
+
+    def pandas_execute_user_code(self, state: GraphState) -> GraphState:
+        code_as_text = state.query
+        try:
+            query = f"Execute the following code {code_as_text}"
+            result = self.university_agent.pandas_agent.invoke({"input": query})
+
+            answer = result.get("output", "")
+            return state.model_copy(update={"output": answer})
+
+        except Exception as e:
+            return state.model_copy(update={
+                "output": f"Agent failed to execute code via Pandas agent: {e}"
+            })
+
+    def generate_code_response(self, code: str) -> Dict[str, Any]:
+        query = f"execute this code on the dataframe: {code}"
+        result_state = self.pandas_execute_user_code(GraphState(query=query))
+        return result_state.model_dump()
+
     def generate_response(self, query: str) -> Dict[str, Any]:
         result_state = self.graph.invoke(GraphState(query=query))
         return result_state
@@ -131,6 +169,7 @@ class UniversityGraph:
         builder.add_node("calendar_retrieve", RunnableLambda(self.calendar_rag_retrieval_node))
         builder.add_node("generate", RunnableLambda(self.rag_answer_generation_node))
         builder.add_node("rag_final", RunnableLambda(self.rag_final))
+        builder.add_node("pandas_code_review", RunnableLambda(self.pandas_code_review))
 
         builder.set_entry_point("route")
 
@@ -139,7 +178,7 @@ class UniversityGraph:
             lambda state: state.metadata["next_node"],
             {
                 "retrieve": "regulations_retrieve",
-                "pandas_node": END,
+                "pandas_node": "pandas_code_review",
                 "calendar_node": "calendar_retrieve",
                 "date_time_node": END,
                 "default_node": "default_node",
@@ -159,5 +198,8 @@ class UniversityGraph:
         builder.add_edge("calendar_retrieve", "generate")
         builder.add_edge("generate", "rag_final")
         builder.add_edge("rag_final", END)
+
+        # Pandas path
+        builder.add_edge("pandas_code_review", END)
 
         self.graph = builder.compile()

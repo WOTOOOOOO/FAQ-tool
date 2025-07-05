@@ -77,7 +77,7 @@ class QueryApp:
             st.session_state["last_query"] = query
             st.session_state["last_response"] = response
 
-            if not response.get("hitl_ui_needed"):
+            if not response.get("hitl_ui_needed") and not response.get("code_review_needed"):
                 st.session_state[self.chat_history_key] = [
                                                               {
                                                                   "query": query,
@@ -86,6 +86,12 @@ class QueryApp:
                                                           ] + st.session_state[self.chat_history_key]
 
         # Approve UI and logic
+        self._handle_approval_ui()
+
+        # Approve code UI and logic
+        self._handle_code_review()
+
+    def _handle_approval_ui(self):
         if st.session_state.get("last_response") and st.session_state["last_response"].get("hitl_ui_needed"):
             query = st.session_state["last_query"]
             response = st.session_state["last_response"]
@@ -113,6 +119,41 @@ class QueryApp:
                 del st.session_state["last_query"]
                 del st.session_state["last_response"]
                 st.rerun()
+
+    def _handle_code_review(self):
+        if st.session_state.get("last_response") and st.session_state["last_response"].get("code_review_needed"):
+            query = st.session_state["last_query"]
+            response = st.session_state["last_response"]
+            context = response.get("context")
+            llm_code = response.get("output")
+
+            st.markdown(f"Query: {query}")
+            st.text_area("Retrieved Context:", value=context, height=200, disabled=True)
+            edited_code = st.text_area("Review/Edit LLM Code:", value=llm_code, height=150,
+                                       key="edit_llm_response")
+
+            if st.button("Approve"):
+                code_response = st.session_state[self.university_graph_key].generate_code_response(edited_code)
+                st.session_state[self.chat_history_key] = [
+                                                              {
+                                                                  "query": query,
+                                                                  "response": {"output": code_response.get("output")}
+                                                              }
+                                                          ] + st.session_state[self.chat_history_key]
+                st.session_state[self.university_graph_key].university_agent.memory.chat_memory.add_user_message(
+                    query
+                )
+                st.session_state[self.university_graph_key].university_agent.memory.chat_memory.add_ai_message(
+                    code_response.get("output") or "No output."
+                )
+
+                # Cleanup after approval
+                del st.session_state["last_query"]
+                del st.session_state["last_response"]
+                st.rerun()
+
+    def _generate_code_response(self, code):
+        return st.session_state[self.university_graph_key].generate_code_response(code)
 
     def _generate_response(self, query):
         return st.session_state[self.university_graph_key].generate_response(query)

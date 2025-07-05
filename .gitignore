@@ -11,6 +11,9 @@ venv/
 
 University_regulations.pdf
 students.csv
+calendar_events.json
+faiss_calendar_storage
+faiss_regulations_storage
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/

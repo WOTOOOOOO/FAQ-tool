@@ -65,7 +65,11 @@ class UniversityQueryAgent:
 
         # Create Pandas agent with protection
         self.pandas_agent = create_pandas_dataframe_agent(
-            self.llm, self.df, verbose=True, allow_dangerous_code=True
+            self.llm,
+            self.df,
+            verbose=True,
+            allow_dangerous_code=True,
+            return_intermediate_steps=True,
         )
         self.classification_prompt = PromptTemplate(
             input_variables=["query"],
